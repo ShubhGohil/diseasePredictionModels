@@ -28,12 +28,14 @@ st.set_page_config(
 @st.cache_resource
 def load_models():
     """Load all trained ML models once"""
-    kidney_model = joblib.load('models/kidney.pkl')
+#    kidney_model = joblib.load('models/kidney.pkl')
     heart_model = joblib.load('models/heart.pkl')
-    diabetes_model = joblib.load('models/diabetes.pkl')
-    return kidney_model, heart_model, diabetes_model
+#    diabetes_model = joblib.load('models/diabetes.pkl')
+#    return kidney_model, heart_model, diabetes_model
+    return heart_model
 
-kidney_model, heart_model, diabetes_model = load_models()
+#kidney_model, heart_model, diabetes_model = load_models()
+    heart_model = load_models()
 
 # ------------------------------
 # HELPER FUNCTION
