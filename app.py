@@ -12,13 +12,14 @@ import pandas as pd
 import joblib
 import io
 import matplotlib.pyplot as plt
+import pickle
 
 # ------------------------------
 # PAGE CONFIGURATION
 # ------------------------------
 st.set_page_config(
     page_title="Disease Prediction Portal",
-    page_icon="🩺",
+    # page_icon="🩺",
     layout="centered"
 )
 
@@ -28,14 +29,12 @@ st.set_page_config(
 @st.cache_resource
 def load_models():
     """Load all trained ML models once"""
-#    kidney_model = joblib.load('models/kidney.pkl')
-    heart_model = joblib.load('models/heart.pkl')
-#    diabetes_model = joblib.load('models/diabetes.pkl')
-#    return kidney_model, heart_model, diabetes_model
-    return heart_model
+    kidney_model = joblib.load('models/heart.joblib')
+    heart_model = joblib.load('models/heart.joblib')
+    diabetes_model = joblib.load('models/heart.joblib')
+    return kidney_model, heart_model, diabetes_model
 
-#kidney_model, heart_model, diabetes_model = load_models()
-    heart_model = load_models()
+kidney_model, heart_model, diabetes_model = load_models()
 
 # ------------------------------
 # HELPER FUNCTION
@@ -58,17 +57,17 @@ def read_txt_to_dataframe(uploaded_file):
 # ------------------------------
 # APP UI
 # ------------------------------
-st.title("🩺 Disease Prediction Portal")
+st.title("Disease Prediction Portal")
 st.markdown("""
 Upload a **.txt** file containing the patient's health data.
 You can choose to analyze for **Kidney Disease**, **Heart Disease**, or **Diabetes**.
 """)
 
-uploaded_file = st.file_uploader("📄 Upload patient data (.txt file)", type=["txt"])
+uploaded_file = st.file_uploader("Upload patient data (.txt file)", type=["txt"])
 
 model_choice = st.selectbox(
     "Select model to run:",
-    ["All Models", "Kidney Disease", "Heart Disease", "Diabetes"]
+    ["Kidney Disease", "Heart Disease", "Diabetes"]
 )
 
 # ------------------------------
@@ -77,32 +76,33 @@ model_choice = st.selectbox(
 if uploaded_file is not None:
     try:
         df = read_txt_to_dataframe(uploaded_file)
-        st.subheader("📋 Uploaded Patient Data")
+        st.subheader("Uploaded Patient Data")
         st.dataframe(df.head())
 
-        if st.button("🔍 Analyze Data"):
+        if st.button("Analyze Data"):
             st.info("Running models... Please wait.")
             results = {}
 
             # Run selected models
-            if model_choice in ["Kidney Disease", "All Models"]:
+            if model_choice in ["Kidney Disease"]:
                 pred = kidney_model.predict(df)[0]
                 prob = kidney_model.predict_proba(df)[0].max() if hasattr(kidney_model, "predict_proba") else None
                 results['Kidney Disease'] = (pred, prob)
 
-            if model_choice in ["Heart Disease", "All Models"]:
+            if model_choice in ["Heart Disease"]:
                 pred = heart_model.predict(df)[0]
-                prob = heart_model.predict_proba(df)[0].max() if hasattr(heart_model, "predict_proba") else None
+                prob = heart_model.predict_proba(df)[0][1] if hasattr(heart_model, "predict_proba") else None
+                print(prob)
                 results['Heart Disease'] = (pred, prob)
 
-            if model_choice in ["Diabetes", "All Models"]:
+            if model_choice in ["Diabetes"]:
                 pred = diabetes_model.predict(df)[0]
                 prob = diabetes_model.predict_proba(df)[0].max() if hasattr(diabetes_model, "predict_proba") else None
                 results['Diabetes'] = (pred, prob)
 
             # Display results
-            st.success("✅ Analysis Complete!")
-            st.subheader("🩸 Prediction Results")
+            st.success("Analysis Complete!")
+            st.subheader("Prediction Results")
 
             display_df = pd.DataFrame([
                 {"Disease": k, "Prediction": v[0], "Probability": f"{v[1]*100:.2f}%" if v[1] else "N/A"}
@@ -111,8 +111,19 @@ if uploaded_file is not None:
 
             st.table(display_df)
 
+            st.subheader("Summary Report")
+            for disease, (prediction, probability) in results.items():
+                if probability is not None:
+                    # Format for one decimal place, like your 13.0% example
+                    prob_percent = f"{probability * 100:.1f}%"
+
+                    st.markdown(
+                        f"• Based on the report, there is a **{prob_percent}** probability of the patient having **{disease}**.")
+                else:
+                    st.markdown(f"• Analysis for **{disease}** did not return a probability.")
+
             # Visualization
-            st.subheader("📊 Probability Visualization")
+            st.subheader("Probability Visualization")
             prob_data = [v[1] for v in results.values() if v[1] is not None]
             labels = [k for k, v in results.items() if v[1] is not None]
 
@@ -127,7 +138,7 @@ if uploaded_file is not None:
                 st.info("No probability data available for visualization.")
 
     except Exception as e:
-        st.error(f"❌ Error reading file: {e}")
+        st.error(f"Error reading file: {e}")
 
 else:
     st.info("Please upload a .txt file to begin.")
