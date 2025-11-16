@@ -1,0 +1,2 @@
+DiastolicBP,Age,SystolicBP,ACR,SerumCreatinine,GFR,BUNLevels,HemoglobinLevels,FastingBloodSugar,CholesterolTotal,CholesterolLDL,HbA1c,CholesterolHDL,CholesterolTriglycerides,SerumElectrolytesCalcium
+82,55,138,45,1.3,72,22,13.2,98,185,112,5.8,48,132,9.1
