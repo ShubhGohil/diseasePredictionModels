@@ -24,7 +24,7 @@ All models were trained using a Random Forest algorithm and achieved high perfor
 | **Diabetes** | 98.6% | 99.0% | 99.0% | 99.0% |
 | **Heart Disease** | 92.0% | 92.0% | 92.0% | 92.0% |
 
-## 🛠Technical Stack
+## Technical Stack
 
   * **Programming Language:** Python
   * **Web Framework:** Streamlit
