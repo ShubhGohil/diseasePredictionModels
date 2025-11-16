@@ -29,9 +29,9 @@ st.set_page_config(
 @st.cache_resource
 def load_models():
     """Load all trained ML models once"""
-    kidney_model = joblib.load('models/heart.joblib')
+    kidney_model = joblib.load('models/kidney.joblib')
     heart_model = joblib.load('models/heart.joblib')
-    diabetes_model = joblib.load('models/heart.joblib')
+    diabetes_model = joblib.load('models/diabetes.joblib')
     return kidney_model, heart_model, diabetes_model
 
 kidney_model, heart_model, diabetes_model = load_models()
@@ -117,11 +117,24 @@ if uploaded_file is not None:
                     # Format for one decimal place, like your 13.0% example
                     prob_percent = f"{probability * 100:.1f}%"
 
-                    st.markdown(
-                        f"• Based on the report, there is a **{prob_percent}** probability of the patient having **{disease}**.")
-                else:
-                    st.markdown(f"• Analysis for **{disease}** did not return a probability.")
+                    font_size = "20px"  # Try changing this to '24px' or '1.5em'
 
+                    if prob_percent:  # Assuming prob_percent is defined and not None/0
+                        # Use HTML <strong> for bold text
+                        styled_text = f"• Based on the report, there is a <strong>{prob_percent}</strong> probability of the patient having <strong>{disease}</strong>."
+
+                        st.markdown(
+                            f'<p style="font-size: {font_size};">{styled_text}</p>',
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        styled_text = f"• Analysis for <strong>{disease}</strong> did not return a probability."
+
+                        # You can style the "else" case too
+                        st.markdown(
+                            f'<p style="font-size: {font_size}; color: #888888;">{styled_text}</p>',
+                            unsafe_allow_html=True
+                        )
             # Visualization
             st.subheader("Probability Visualization")
             prob_data = [v[1] for v in results.values() if v[1] is not None]
